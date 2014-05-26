@@ -16,31 +16,19 @@
 
 package org.drools.compiler.factmodel.traits;
 
-import org.junit.Assert;
 import org.drools.compiler.CommonTestMethodBase;
 import org.drools.compiler.Person;
 import org.drools.core.common.InternalFactHandle;
 import org.drools.core.common.InternalWorkingMemoryEntryPoint;
 import org.drools.core.common.ObjectTypeConfigurationRegistry;
-import org.drools.core.factmodel.traits.Entity;
-import org.drools.core.factmodel.traits.LogicalTypeInconsistencyException;
-import org.drools.core.factmodel.traits.MapWrapper;
-import org.drools.core.factmodel.traits.Thing;
-import org.drools.core.factmodel.traits.Trait;
-import org.drools.core.factmodel.traits.TraitFactory;
-import org.drools.core.factmodel.traits.TraitProxy;
-import org.drools.core.factmodel.traits.TraitRegistry;
-import org.drools.core.factmodel.traits.TraitTypeMap;
-import org.drools.core.factmodel.traits.Traitable;
-import org.drools.core.factmodel.traits.TraitableBean;
-import org.drools.core.factmodel.traits.TripleBasedBean;
-import org.drools.core.factmodel.traits.TripleBasedStruct;
+import org.drools.core.factmodel.traits.*;
 import org.drools.core.impl.KnowledgeBaseImpl;
 import org.drools.core.io.impl.ByteArrayResource;
 import org.drools.core.io.impl.ClassPathResource;
 import org.drools.core.reteoo.ObjectTypeConf;
 import org.drools.core.util.CodedHierarchyImpl;
 import org.drools.core.util.HierarchyEncoder;
+import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -50,9 +38,6 @@ import org.kie.api.definition.type.FactType;
 import org.kie.api.event.rule.AfterMatchFiredEvent;
 import org.kie.api.event.rule.AgendaEventListener;
 import org.kie.api.event.rule.DebugAgendaEventListener;
-import org.kie.api.event.rule.ObjectDeletedEvent;
-import org.kie.api.event.rule.ObjectInsertedEvent;
-import org.kie.api.event.rule.ObjectUpdatedEvent;
 import org.kie.api.event.rule.RuleRuntimeEventListener;
 import org.kie.api.io.Resource;
 import org.kie.api.io.ResourceType;
@@ -63,7 +48,6 @@ import org.kie.api.runtime.rule.QueryResultsRow;
 import org.kie.internal.KnowledgeBase;
 import org.kie.internal.KnowledgeBaseFactory;
 import org.kie.internal.builder.KnowledgeBuilder;
-import org.kie.internal.builder.KnowledgeBuilderConfiguration;
 import org.kie.internal.builder.KnowledgeBuilderFactory;
 import org.kie.internal.command.CommandFactory;
 import org.kie.internal.io.ResourceFactory;
@@ -71,26 +55,13 @@ import org.kie.internal.runtime.StatefulKnowledgeSession;
 import org.kie.internal.runtime.StatelessKnowledgeSession;
 import org.mockito.ArgumentCaptor;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.BitSet;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @RunWith(Parameterized.class)
 public class TraitTest extends CommonTestMethodBase {
@@ -342,6 +313,27 @@ public class TraitTest extends CommonTestMethodBase {
 
     }
 
+    @Test
+    public void traitWithPojoInterface() {
+        String source = "org/drools/compiler/factmodel/traits/testTraitPojoInterface.drl";
+
+        StatefulKnowledgeSession ks = getSession( source );
+        TraitFactory.setMode( mode, ks.getKieBase() );
+
+        ProcedureImpl procedure = new ProcedureImpl();
+
+        PatientImpl patient = new PatientImpl();
+        patient.setName("Person");
+        procedure.setPatient( patient );
+
+        ProviderImpl provider = new ProviderImpl();
+        provider.setName("Provider");
+        procedure.setProvider( provider );
+
+        ks.insert( procedure );
+
+        ks.fireAllRules();
+    }
 
     @Test
     public void traitMethodsWithPrimitives() {

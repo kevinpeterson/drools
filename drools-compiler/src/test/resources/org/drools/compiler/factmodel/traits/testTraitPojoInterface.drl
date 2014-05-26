@@ -1,0 +1,29 @@
+package org.drools.compiler.test;
+
+import org.drools.compiler.factmodel.traits.Procedure
+import org.drools.compiler.factmodel.traits.ProcedureImpl
+import org.drools.compiler.factmodel.traits.Surgery
+
+declare ProcedureImpl
+end
+
+declare org.drools.compiler.factmodel.traits.Surgery
+    @Trait( logical = true )
+end
+
+rule "Don Procedure"
+when
+    $p : Procedure()
+then
+    don( $p, Surgery.class );
+end
+
+rule "Print Provider"
+when
+    $s : Surgery()
+then
+    System.out.println( $s.provider );
+end
+
+
+
